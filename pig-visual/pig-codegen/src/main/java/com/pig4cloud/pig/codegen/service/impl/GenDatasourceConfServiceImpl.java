@@ -82,6 +82,10 @@ public class GenDatasourceConfServiceImpl extends ServiceImpl<GenDatasourceConfM
 	 */
 	@Override
 	public Boolean updateDsByEnc(GenDatasourceConf conf) {
+		GenDatasourceConf genDatasourceConf = baseMapper.selectById(conf.getId());
+		if (StrUtil.isBlank(conf.getPassword())) {
+			conf.setPassword(stringEncryptor.decrypt(genDatasourceConf.getPassword()));
+		}
 		if (!checkDataSource(conf)) {
 			return Boolean.FALSE;
 		}
@@ -93,9 +97,7 @@ public class GenDatasourceConfServiceImpl extends ServiceImpl<GenDatasourceConfM
 		addDynamicDataSource(conf);
 
 		// 更新数据库配置
-		if (StrUtil.isNotBlank(conf.getPassword())) {
-			conf.setPassword(stringEncryptor.encrypt(conf.getPassword()));
-		}
+		conf.setPassword(stringEncryptor.encrypt(conf.getPassword()));
 		this.baseMapper.updateById(conf);
 		return Boolean.TRUE;
 	}
